@@ -22,8 +22,6 @@ namespace IngameScript {
 
     bool Init() {
 
-#if true // Favor processing effiency over CurrentInstructionCount
-
       var connectors = new List<IMyShipConnector>();
       var containers = new List<IMyCargoContainer>();
       var drills = new List<IMyShipDrill>();
@@ -35,42 +33,49 @@ namespace IngameScript {
 
       try {
         GridTerminalSystem.GetBlocksOfType((List<IMyTerminalBlock>)null, block => {
-          if(Me.IsSameConstructAs(block)) {
-            var drill = block as IMyShipDrill;
-            if(drill != null)
-              drills.Add(drill);
-            else {
-              var sorter = block as IMyConveyorSorter;
-              if(sorter != null)
-                sorters.Add(sorter);
-              else {
-                var piston = block as IMyPistonBase;
-                if(piston != null)
-                  pistons.Add(piston);
-                else {
-                  var connector = block as IMyShipConnector;
-                  if(connector != null)
-                    (connector.ThrowOut ? ejectors : connectors).Add(connector);
-                  else {
-                    var refinery = block as IMyRefinery;
-                    if(refinery != null)
-                      refineries.Add(refinery);
-                    else {
-                      var container = block as IMyCargoContainer;
-                      if(container != null)
-                        containers.Add(container);
-                      else {
-                        if(rotor == null)
-                          rotor = block as IMyMotorStator;
-                        else if(block is IMyMotorStator)
-                          throw new ConstraintException("Structure must include a single rotor");
-                      }
-                    }
-                  }
-                }
-              }
-            }
+          if(!Me.IsSameConstructAs(block)) {
+            return false;
           }
+
+          var drill = block as IMyShipDrill;
+          if(drill != null) {
+            drills.Add(drill);
+            return false;
+          }
+          var sorter = block as IMyConveyorSorter;
+          if(sorter != null) {
+            sorters.Add(sorter);
+            return false;
+          }
+          var piston = block as IMyPistonBase;
+          if(piston != null) {
+            pistons.Add(piston);
+            return false;
+          }
+          var connector = block as IMyShipConnector;
+          if(connector != null) {
+            (connector.ThrowOut ? ejectors : connectors).Add(connector);
+            return false;
+          }
+          var refinery = block as IMyRefinery;
+          if(refinery != null) {
+            refineries.Add(refinery);
+            return false;
+          }
+          var container = block as IMyCargoContainer;
+          if(container != null) {
+            containers.Add(container);
+            return false;
+          }
+
+          var _rotor = block as IMyMotorStator;
+          if(rotor == null) {
+            rotor = _rotor;
+            return false;
+          } else if(_rotor != null) {
+            throw new ConstraintException("Structure must include a single rotor");
+          }
+
           return false;
         });
       }
@@ -106,57 +111,8 @@ namespace IngameScript {
       Refineries = new RefineryManager(this, refineries);
 
       Rotor = new RotorTracker(this, rotor);
-      Rotor.Rotor.RotorLock = true;
-      Rotor.Rotor.TargetVelocityRPM = RotorSpeed;
-
-#else // Favor CurrentInstructionCount over processing efficiency
-
-      var connectors = new List<IMyTerminalBlock>();
-      var containers = new List<IMyTerminalBlock>();
-      var drills = new List<IMyTerminalBlock>();
-      var ejectors = new List<IMyTerminalBlock>();
-      var pistons = new List<IMyTerminalBlock>();
-      var refineries = new List<IMyTerminalBlock>();
-      var sorters = new List<IMyTerminalBlock>();
-      var rotors = new List<IMyTerminalBlock>();
-
-      GridTerminalSystem.GetBlocksOfType((List<IMyTerminalBlock>)null, block => {
-        var list = !Me.IsSameConstructAs(block) ? null :
-          block is IMyShipDrill ? drills :
-          block is IMyConveyorSorter ? sorters :
-          block is IMyPistonBase ? pistons :
-          block is IMyShipConnector ? ((IMyShipConnector)block).ThrowOut == true ? ejectors : connectors :
-          block is IMyRefinery ? refineries :
-          block is IMyCargoContainer ? containers :
-          block is IMyMotorStator ? rotors :
-          null;
-        list?.Add(block);
-        return false;
-      });
-
-      var message = rotors.Count != 1 ? "Structure must include a single rotor" :
-        drills.Count == 0 ? "Structure must include drills" :
-        pistons.Count == 0 ? "Structure must include pistons" :
-        ejectors.Count == 0 ? "Structure must include connectors with \"Throw out\" enabled" :
-        refineries.Count == 0 ? "Structure must include refineries" :
-        containers.Count == 0 ? "Structure must include containers" :
-        null;
-      if(message != null) {
-        Log.Error(message);
-        return false;
-      }
-
-      Ejectors = new EjectionManager(this, ejectors.Cast<IMyShipConnector>().ToList());
-      Containers = new ContainerManager(this, containers.Cast<IMyCargoContainer>().ToList());
-      Drills = new DrillManager(this, drills.Cast<IMyShipDrill>().ToList());
-      Pistons = new PistonManager(this, pistons.Cast<IMyPistonBase>().ToList());
-      Refineries = new RefineryManager(this, refineries.Cast<IMyRefinery>().ToList());
-
-      Rotor = new RotorTracker(this, (IMyMotorStator)rotors[0]);
-      Rotor.Rotor.RotorLock = true;
-      Rotor.Rotor.TargetVelocityRPM = RotorSpeed;
-
-#endif
+      rotor.RotorLock = true;
+      rotor.TargetVelocityRPM = RotorSpeed;
 
       if(!IsFullyConnected()) {
         Log.Error("Inventories must be fully connected");
