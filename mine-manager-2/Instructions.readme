@@ -1,0 +1,24 @@
+﻿Mine Manager 2
+
+Mine automation for use with planetary boring bar-style mining & refinery stations.
+
+Enable "Share Inertia Tensor" on pistons and rotor.
+Recompile to update configuration.
+WARNING: Third-party inventory management software may interfere with this script.
+
+Run commands (case insensitive):
+    START : Begins the drillings process.
+	STOP : Stops the drilling process. Inventory management continues.
+	NEXT : Advance to next layer. Only works if State == Cutting
+
+System expects:
+    - One or more drills forming a drilling head.
+	- One or more pistons connected linearally. Used to advance the drilling head.
+	- Exactly one advanced rotor. Used to rotate the drilling head.
+	- One or more containers to act as system buffer and output storage.
+	- One or more connectors set with Throw Out enabled. Used to discard stone and gravel. Capacity should exceed drill yield.
+	- One or more refineries capable of accepting the ore being drilled. Each must be able to accept all ores being drilled.
+	- All of the above must be part of the same structure. Grids attached via connectors or landing gear are not part of the structure.
+	- All inventories must be freely connected. Sorters can be included but must allow all items to pass.
+
+TODO: Halt drilling if inventories get full.
