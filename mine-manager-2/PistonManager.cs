@@ -151,7 +151,7 @@ namespace IngameScript {
         if(velocity <= 0)
           throw new ConstraintException($"Target velocity ({velocity:N4}) must be greater than zero");
         if(velocity > MaxVelocity)
-          throw new ConstraintException($"Target velocity ({velocity:N4}) greater than MaxVelocity ({MaxVelocity:N4})");
+          throw new ConstraintException($"Target velocity ({velocity:N4}) less than MaxVelocity ({MaxVelocity:N4})");
         if(position > HighestPosition)
           throw new ConstraintException($"Target position ({position:N4}) greater than HighestPosition ({HighestPosition:N4})");
         if(position < LowestPosition)
