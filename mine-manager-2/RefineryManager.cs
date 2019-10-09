@@ -61,8 +61,8 @@ namespace IngameScript {
               IsFull = true;
               return false;
             }
+            dst = Refineries[InputIndex].InputInventory;
           }
-          dst = Refineries[InputIndex].InputInventory;
         } while(!inv.TransferItemTo(Refineries[InputIndex].InputInventory, item));
         return true;
       }
