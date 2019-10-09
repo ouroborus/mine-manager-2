@@ -183,9 +183,10 @@ namespace IngameScript {
         }
       }
 
+      // Not really fully connected. Only checking one direction here.
       foreach(var dst in Ejectors.Ejectors) {
         var dstInv = dst.GetInventory(0);
-        if(!srcInv.IsConnectedTo(dstInv) || !dstInv.IsConnectedTo(srcInv)) {
+        if(!srcInv.IsConnectedTo(dstInv)) {
           return false;
         }
       }
