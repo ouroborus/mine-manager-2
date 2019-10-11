@@ -29,6 +29,8 @@ namespace IngameScript {
 
       readonly Logger Log;
 
+      readonly List<MyInventoryItem> GetItems_Items = new List<MyInventoryItem>();
+
       public RefineryManager(Program me, List<IMyRefinery> refineries) {
         Log = me.Log;
 
@@ -71,9 +73,9 @@ namespace IngameScript {
       public IEnumerable<Item> GetItems() {
         foreach(var refinery in Refineries) {
           var inv = refinery.OutputInventory;
-          var items = new List<MyInventoryItem>();
-          inv.GetItems(items);
-          foreach(var item in items) {
+          GetItems_Items.Clear();
+          inv.GetItems(GetItems_Items);
+          foreach(var item in GetItems_Items) {
             yield return new Item() { inv = inv, item = item };
           }
         }
