@@ -63,8 +63,8 @@ namespace IngameScript {
               IsFull = true;
               return false;
             }
+            dst = Containers[Index].GetInventory(0);
           }
-          dst = Containers[Index].GetInventory(0);
         } while(!inventory.TransferItemTo(dst, item));
         return true;
       }
