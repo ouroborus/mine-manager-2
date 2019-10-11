@@ -21,10 +21,12 @@ namespace IngameScript {
   public partial class Program : MyGridProgram {
 
     // CONFIG BEGIN
-    float PistonSpeed = 0.25f; // piston speed in m/s
-    float PistonStep = 2f; // meters for each layer
-    float RotorSpeed = 0.05f; // rotor speed in RPM; sign controls direction
-    float RotorStep = 180f; // degrees for each layer
+    const float PistonStep = 2f; // meters for each layer
+    const float PistonSpeed = 0.25f; // piston speed in m/s
+    const float RotorStep = 180f; // degrees for each layer
+    const float RotorSpeed = 0.075f; // rotor speed in RPM; sign controls direction
+    // [circumference linear velocity in m/s] = [# drills] * [drill width in meters] * [RPM] * 0.05236
+    const float RotorTorque = 50000000f; // red > 33599988; rotor torque only has 6-7 digits of precision
     // CONFIG END
 
     #region mdk macros
@@ -65,6 +67,8 @@ namespace IngameScript {
     RotorTracker Rotor;
 
     int Cycles = 0;
+
+    SlidingWindow Average = new SlidingWindow(60);
 
     public Program() {
       //if(Runtime != null) throw new Exception();
@@ -139,6 +143,9 @@ namespace IngameScript {
       }
 
       Log.Info();
+      Log.Info($"Last run time: {Runtime.LastRunTimeMs:N4}ms");
+      Average.Add((int)(Runtime.LastRunTimeMs * 10000));
+      Log.Info($"Min: {Average.Min / 10000f:N4}, Avg: {Average.Average / 10000f:N4}, Max: {Average.Max / 10000f:N4}");
       Log.Info($"Instructions: {Runtime.CurrentInstructionCount}/{Runtime.MaxInstructionCount}");
     }
 
