@@ -113,6 +113,7 @@ namespace IngameScript {
       Rotor = new RotorTracker(this, rotor);
       rotor.RotorLock = true;
       rotor.TargetVelocityRPM = RotorSpeed;
+      rotor.Torque = rotor.BrakingTorque = RotorTorque;
 
       if(!IsFullyConnected()) {
         Log.Error("Inventories must be fully connected");
