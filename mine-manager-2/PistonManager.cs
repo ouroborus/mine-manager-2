@@ -63,9 +63,7 @@ namespace IngameScript {
         switch(State) {
           case PistonStatus.Extending:
           case PistonStatus.Retracting:
-            if(!UpdateMovement()) {
-              State = PistonStatus.Stopped;
-            }
+            UpdateMovement();
             break;
           case PistonStatus.Stopped:
           case PistonStatus.Extended:
